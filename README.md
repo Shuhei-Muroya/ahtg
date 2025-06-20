@@ -4,22 +4,35 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of ahtg is to ...
+The ahtg package automatically provides appropriate hyperparameters for glmnet function.
+It selects the appropriate hyperparameters for glmnet based on the given data.
+Additionally, it can compare lars and glmnet in terms of computation time and choose the better package for the task.
 
 ## Installation
 
-You can install the development version of ahtg like so:
+You can install the development version of ahtg from [GitHub](https://github.com/) with:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+# install.packages("devtools")
+library(devtools)
+devtools::install_github("Shuhei-Muroya/ahtg")
 ```
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example :
 
 ``` r
 library(ahtg)
-## basic example code
+
+## Import example data
+x_data <- get("x", envir = .myPackageEnv)
+y_data <- get("y", envir = .myPackageEnv)
+
+## Automatically select the hyperparameters for glmnet
+auto_settingvalue(x_data,T_hope=20,size = 1000)
+
+## Automatically select the hyperparameters and compute the lasso
+auto_lasso(x_data,y_data)
 ```
 
