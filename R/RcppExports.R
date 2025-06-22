@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 myNN_lars_cpp <- function(x_input) {
-    .Call('_assg_myNN_lars_cpp', PACKAGE = 'assg', x_input)
+    .Call(`_ahtg_myNN_lars_cpp`, x_input)
 }
 
 myNN_glmnet_cpp <- function(x_input) {
-    .Call('_assg_myNN_glmnet_cpp', PACKAGE = 'assg', x_input)
+    .Call(`_ahtg_myNN_glmnet_cpp`, x_input)
 }
 

@@ -1,6 +1,6 @@
 #' @importFrom stats coef cov predict runif
 #' @importFrom utils head tail
-#' @useDynLib assg, .registration = TRUE
+#' @useDynLib ahtg, .registration = TRUE
 .onLoad <- function(libname, pkgname) {
   #message("Initializing .myPackageEnv")
   utils::globalVariables(c("p", "lmodel", "Pareto", "Time", "Coef_Accuracy"))
