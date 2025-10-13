@@ -34,26 +34,14 @@ auto_settingvalue <- function(X, size = 1000, T_hope = 20, seed=1,message = TRUE
   results <- t(results)
   results <- cbind(results, nlambda, thresh)
 
+  # Solve Pareto optimal solution and plot Pareto front
   result_return <- cp_pareto_front(results,T_hope,line)
 
-  pareto_data <- result_return$data
-  filtered_data <- subset(pareto_data, Pareto == 1 & Time <= T_hope)
-  min_accuracy_row <- filtered_data[which.min(filtered_data$Coef_Accuracy), ]
-
-  #result of setting values
-  params_nlambda <- min_accuracy_row$params_nlambda
-  params_thresh <- min_accuracy_row$params_thresh
-
   if (message) {
-    cat("params_nlambda:", params_nlambda, "\n")
-    cat("params_thresh:", params_thresh, "\n")
+    cat("params_nlambda:", result_return$best_hyperparameters$nlambda, "\n")
+    cat("params_thresh:",result_return$best_hyperparameters$thresh, "\n")
   }
 
-  setting_value <- data.frame(
-    nlambda = params_nlambda,
-    thresh = params_thresh
-  )
-
-  result_list <- list(hyperparameters = setting_value, pareto_front = result_return$pareto_front, pareto_data = pareto_data)
+  result_list <- list(hyperparameters = result_return$best_hyperparameters, Pareto_front = result_return$Pareto_front, Pareto_front_data = result_return$data)
   return(result_list)
 }
