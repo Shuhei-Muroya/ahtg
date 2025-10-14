@@ -2,11 +2,11 @@
 % Please edit documentation in R/auto_lasso.R
 \name{auto_lasso}
 \alias{auto_lasso}
-\title{Lasso Regression using the better package lars or glmnet automatically}
+\title{Lasso Regression using the better package lars or glmnet with considering its computation time}
 \usage{
 auto_lasso(
-  y,
   X,
+  y,
   new_x = NULL,
   size = 1000,
   T_hope = 20,
@@ -16,40 +16,42 @@ auto_lasso(
 )
 }
 \arguments{
-\item{y}{A numeric vector representing the response variable.}
+\item{X}{A matrix or data frame of predictor variables.}
 
-\item{X}{A matrix or data frame representing the predictor variables.}
+\item{y}{A numeric vector of response variables.}
 
 \item{new_x}{Optional. A matrix or data frame for prediction. If provided, predictions will be made for \code{new_x}.}
 
-\item{size}{An integer specifying the number of samples for the GLMNET lambda search. Default is 1000.}
+\item{size}{An integer specifying the number of samples for the glmnet lambda search. Default is 1000.}
 
-\item{T_hope}{A numeric value specifying the computation time threshold to decide between LARS and GLMNET. Default is 20.}
+\item{T_hope}{A numeric value specifying the computation time threshold to decide between lars and glmnet. Default is 20.}
 
 \item{seed}{An integer specifying the random seed for reproducibility. Default is 1.}
 
 \item{message}{Logical. If \code{TRUE}, progress messages will be displayed. Default is \code{TRUE}.}
+
+\item{line}{logical(1). If TRUE, the Pareto-front points in the plot are　connected with a polyline (frontier line). If FALSE, only the points are shown. Default is TRUE.}
 }
 \value{
 A list containing:
 \item{method}{A character string indicating the method used ("lars" or "glmnet").}
-\item{cv_lars}{Cross-validation results from LARS (if LARS is used).}
-\item{lars_model}{The LARS model object (if LARS is used).}
-\item{best_step}{The optimal step for the LARS model (if LARS is used).}
-\item{cv_glmnet}{Cross-validation results from GLMNET (if GLMNET is used).}
-\item{glmnet_model}{The GLMNET model object (if GLMNET is used).}
-\item{best_lambda}{The optimal lambda value for the GLMNET model (if GLMNET is used).}
+\item{cv_lars}{Cross-validation results from lars (if lars is used).}
+\item{lars_model}{The lars model object (if lars is used).}
+\item{best_step}{The optimal step for the lars model (if lars is used).}
+\item{cv_glmnet}{Cross-validation results from glmnet (if glmnet is used).}
+\item{glmnet_model}{The glmnet model object (if glmnet is used).}
+\item{best_lambda}{The optimal lambda value for the glmnet model (if glmnet is used).}
 \item{coef_cv.min}{The regression coefficients for the best model.}
 \item{prediction_cv.min}{Predictions for \code{new_x} (if \code{new_x} is provided).}
-\item{settings}{The selected setting approprite values for GLMNET (if GLMNET is used).}
+\item{settings}{The selected hyperparameters for glmnet (if glmnet is used).}
 }
 \description{
-This function automatically performs Lasso regression using either LARS or GLMNET,
+This function automatically performs Lasso regression using either lars or glmnet,
 depending on the specified computation time threshold (\code{T_hope}). It selects the best
 model based on cross-validation and can optionally make predictions on new data.
 }
 \details{
-The function decides between LARS and GLMNET based on the computation time threshold (\code{T_hope}).
-If \code{T_hope} is greater than the estimated time for LARS, the function uses LARS for Lasso regression.
-Otherwise, GLMNET is used. Cross-validation is performed to select the optimal model.
+The function decides between lars and glmnet based on the computation time threshold (\code{T_hope}).
+If \code{T_hope} is greater than the estimated time for lars, the function uses lars for Lasso regression.
+Otherwise, glmnet is used. Cross-validation is performed to select the optimal model.
 }

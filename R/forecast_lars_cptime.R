@@ -11,11 +11,6 @@
 #'
 #' @return A numeric value representing the predicted computation time for the Lars model.
 #'
-#' @examples
-#' # Example usage:
-#' # Generate a 1000x700 matrix with random normal values
-#' X <- matrix(rnorm(1000 * 700), nrow = 1000, ncol = 700)
-#' forecast_time <- forecast_lars_cptime(X, T_hope = 20, message = TRUE)
 #'
 #' @import RcppArmadillo
 #' @import Rcpp
@@ -26,12 +21,16 @@ forecast_lars_cptime <- function(X, T_hope = 20, message = TRUE) {
   result <- myNN_lars_cpp(x_input)
   pred_time <- result[1]#time
   if (message) {
-    cat("The predicted lars computation time is", pred_time, ".","\n")
-    if (T_hope < pred_time) {
-      cat("It might be better to use 'glmnet'.\n")
+    cat(sprintf(
+      "Predicted lars time: %.2f (T_hope: %.2f)\n",
+      pred_time, T_hope
+    ))
+    if (pred_time > T_hope) {
+      cat("→ The predicted time exceeds T_hope; it might be better to use 'glmnet'.\n")
     } else {
-      cat("It might be better to use 'lars'.\n")
+      cat("→ The predicted time is within T_hope; it might be better to use 'lars'.\n")
     }
   }
+
   return(pred_time)
 }

@@ -12,7 +12,7 @@
 #' @param T_hope A numeric value specifying the computation time threshold to decide between lars and glmnet. Default is 20.
 #' @param seed An integer specifying the random seed for reproducibility. Default is 1.
 #' @param message Logical. If `TRUE`, progress messages will be displayed. Default is `TRUE`.
-#'
+#' @param line logical(1). If TRUE, the Pareto-front points in the plot are　connected with a polyline (frontier line). If FALSE, only the points are shown. Default is TRUE.
 #' @return A list containing:
 #' \item{method}{A character string indicating the method used ("lars" or "glmnet").}
 #' \item{cv_lars}{Cross-validation results from lars (if lars is used).}
@@ -36,81 +36,86 @@
 #' @export
 auto_lasso<- function(X,y, new_x=NULL,size = 1000, T_hope = 20, seed=1,message = TRUE,line=TRUE) {
   X<-as.matrix(X)
+  p<-ncol(X)
   y<-as.numeric(y)
+  # Forecast computaion time for lars
   lars_time<-forecast_lars_cptime(X=X,T_hope=T_hope,message=message)
   print(lars_time)
+
+  result <- list(
+    method        = NA_character_,
+    timing        = list(predicted_lars_time = lars_time, T_hope = T_hope),
+    hyperparameters = list(source = "not_applicable", nlambda = NA_integer_, thresh = NA_real_),
+    cv            = NULL,
+    model         = NULL,
+    selection     = list(best_step = NA_integer_, best_lambda = NA_real_),
+    coefficients  = NULL,
+    prediction    = NULL,
+    pareto        = NULL
+  )
+
   if(T_hope>lars_time){#lasso by lars
     method<-"lars"
 
     set.seed(seed)
-
-    cvlars<-cv.lars(X,y,n_lambdaot.it = FALSE,type = "lasso" ,mode ="step",max.step=p)
+    cvlars<-cv.lars(X,y,type = "lasso" ,mode ="step",max.step=p)
     lars_model<-lars(X,y,type = "lasso",trace = FALSE)
-    beststep<-cvlars$index[which.min(cvlars$cv)]
-    coef<-coef(lmodel,mode = "step",s=beststep)
+    i_best      <- which.min(cvlars$cv)
+    best_step   <- cvlars$index[i_best]
+    best_lambda <- lars_model$lambda[best_step]
 
-    result_list<-list(method=method,
-                      cv_lars=cvlars,
-                      lars_model=lars_model,
-                      best_step=beststep,
-                      coef_cv.min=coef)
+    coef_lars<-coef(lars_model,mode = "step",s=best_step)
+
+    result$method                 <- method
+    result$cv            <- cvlars
+    result$model             <- lars_model
+    result$selection$best_step    <- best_step
+    result$selection$best_lambda    <- best_lambda
+    result$coefficients           <- coef_lars
 
     #prediction
     if(!is.null(new_x)){
       new_x<-as.matrix(new_x)
-      prediction<-predict(lmodel,newx = new_x,mode = "step",s=beststep)
-      result_list<-list(method=method,
-                        cv_lars=cvlars,
-                        lars_model=lars_model,
-                        best_step=beststep,
-                        coef_cv.min=coef,
-                        prediction_cv.min =prediction)
+      result$prediction <- predict(lars_model, newx = new_x, mode = "step", s = best_step)$fit
     }
-  }else{##lasso by glmnet
+  }else{#lasso by glmnet
     method<-"glmnet"
-    set_list<-auto_settingvalue(X=X,size=size,T_hope=T_hope,seed=seed,message = message,line)
+    set.seed(seed)
 
+    tuning_result<-tune_hyperparameters(X=X,size=size,T_hope=T_hope,seed=seed,message = message,line)
+    n_lambda<-round(tuning_result$hyperparameters$nlambda)
+    thresh<-tuning_result$hyperparameters$thresh
 
-    n_lambda<-round(set_list$hyperparameters$nlambda)
-    thresh<-set_list$hyperparameters$thresh
-
-    model1<-glmnet(X,y,family = "gaussian",alpha = 1,intercept=FALSE)
+    model1<-glmnet(X,y,family = "gaussian",alpha = 1)
     minn<-min(model1$lambda)
     len_model1_lambda<-length(model1$lambda)
     model1_lambda<-model1$lambda
-
     lam<-numeric()
-    if(n_lambda==0){
+    if(n_lambda<len_model1_lambda){
       lam<-model1_lambda
-    }else if(n_lambda<len_model1_lambda){
-      add<-seq(minn,0,by=-(minn/(100-len_model1_lambda)))[-1]
-
-      add<-seq(minn,0,length.out=n_lambda)#[-1]
-      lam<-add
     }else{
       add<-seq(minn,0,by=-(minn/(n_lambda-len_model1_lambda)))[-1]
       lam<-c(model1_lambda,add)
     }
-
-
-    cv_set<-cv.glmnet(X,y,family = "gaussian",alpha = 1,intercept=FALSE,thresh=thresh,lambda=lam)
-    glmnet_model<-glmnet(X,y,family = "gaussian",alpha = 1,intercept=FALSE,thresh=thresh,lambda=lam)
+    cv_set<-cv.glmnet(X,y,family = "gaussian",alpha = 1,thresh=thresh,lambda=lam)
+    glmnet_model<-glmnet(X,y,family = "gaussian",alpha = 1,thresh=thresh,lambda=lam)
     coef_glmnet<-coef(glmnet_model,s=cv_set$lambda.min)
-    result_list<-list(method=method,
-                      cv_glmnet=cv_set,
-                      glmnet_model=glmnet_model,
-                      best_lambda=cv_set$lambda.min,
-                      coef_cv.min=coef,
-                      settings=set_list)
+
+    result$method                   <- "glmnet"
+    result$cv                       <- cv_set
+    result$model             <- glmnet_model
+    result$selection$best_lambda    <- cv_set$lambda.min
+    result$coefficients             <- coef_glmnet
+    result$hyperparameters          <- data.frame( nlambda = n_lambda, thresh = thresh)
+    result$pareto                   <- tuning_result
 
     #predictionまで
     if(!is.null(new_x)){
       new_x<-as.matrix(new_x)
-      prediction<-predict(glmnet_model,newx = new_x,s=cv_set$lambda.min)
-      result_list$prediction_cv.min<-prediction
+      result$prediction <-  predict(glmnet_model,newx = new_x,s=cv_set$lambda.min)
     }
 
   }
 
-  return(result_list)
+  return(result)
 }

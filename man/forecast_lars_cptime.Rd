@@ -11,7 +11,7 @@ forecast_lars_cptime(X, T_hope = 20, message = TRUE)
 
 \item{T_hope}{A numeric value representing the desired computation time threshold. Default is 20.}
 
-\item{message}{A logical value. If \code{FALSE}, additional messages will be displayed. Default is \code{TRUE}.}
+\item{message}{A logical value. If \code{TRUE}, messages will be displayed. Default is \code{TRUE}.}
 }
 \value{
 A numeric value representing the predicted computation time for the Lars model.
@@ -22,11 +22,4 @@ It also suggests whether to use glmnet or lars based on the predicted computatio
 }
 \details{
 The function takes an input dataset and processes it through a neural network model defined by specific weights and biases loaded from files. The network is designed to predict the computation time for the Lars model.
-}
-\examples{
-# Example usage:
-# Generate a 1000x700 matrix with random normal values
-X <- matrix(rnorm(1000 * 700), nrow = 1000, ncol = 700)
-forecast_time <- forecast_lars_cptime(X, T_hope = 20, message = TRUE)
-
 }

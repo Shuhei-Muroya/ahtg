@@ -7,12 +7,16 @@
 cp_pareto_front(data, T_hope = 20, line = TRUE)
 }
 \arguments{
-\item{data}{A data frame with columns for time, coefficient accuracy, nlambda, and thresh.}
+\item{data}{A data frame with columns for time, SPE, nlambda, and thresh.}
+
+\item{T_hope}{A numeric value representing the desired computation time threshold. Default is 20.}
+
+\item{line}{logical(1). If TRUE, the Pareto-front points in the plot are　connected with a polyline (frontier line). If FALSE, only the points are shown. Default is TRUE.}
 }
 \value{
 A list containing a ggplot object for the Pareto front plot and a data frame with Pareto status.
 }
 \description{
-This function identifies the Pareto front in a dataset based on computation time and coefficient accuracy,
+This function identifies the Pareto front in a dataset based on computation time and SPE,
 and generates a plot to visualize the Pareto front.
 }

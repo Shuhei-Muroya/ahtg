@@ -1,9 +1,11 @@
 #' Compute and Plot Pareto Front
 #'
-#' This function identifies the Pareto front in a dataset based on computation time and coefficient accuracy,
+#' This function identifies the Pareto front in a dataset based on computation time and SPE,
 #' and generates a plot to visualize the Pareto front.
 #'
-#' @param data A data frame with columns for time, coefficient accuracy, nlambda, and thresh.
+#' @param data A data frame with columns for time, SPE, nlambda, and thresh.
+#' @param T_hope A numeric value representing the desired computation time threshold. Default is 20.
+#' @param line logical(1). If TRUE, the Pareto-front points in the plot are　connected with a polyline (frontier line). If FALSE, only the points are shown. Default is TRUE.
 #' @return A list containing a ggplot object for the Pareto front plot and a data frame with Pareto status.
 #'
 #' @import dplyr
@@ -13,13 +15,13 @@
 #'
 cp_pareto_front <- function(data,T_hope=20,line=TRUE) {
   data <- as.data.frame(data)
-  colnames(data) <- c("Time", "Coef_Accuracy", "params_nlambda", "params_thresh")
+  colnames(data) <- c("Time", "SPE", "params_nlambda", "params_thresh")
 
   df <- data %>%
     rowwise() %>%
     mutate(
       Type = if_else(
-        any(Coef_Accuracy > data$Coef_Accuracy & Time > data$Time),
+        any(SPE > data$SPE & Time > data$Time),
         "Not Pareto Front",
         "Pareto Front"
       )
@@ -31,14 +33,14 @@ cp_pareto_front <- function(data,T_hope=20,line=TRUE) {
   cand_idx <- which(df$Type == "Pareto Front" & df$Time <= T_hope)
   if (length(cand_idx) >= 1) {
     # Case 1: constrained candidates exist → choose best accuracy
-    best_i <- cand_idx[ which.min(df$Coef_Accuracy[cand_idx]) ]
+    best_i <- cand_idx[ which.min(df$SPE[cand_idx]) ]
     df$Type[best_i] <- "Best Hyperparameters"
   }else {
     # Case 2: no candidate meets Time <= T_hope → choose the fastest on the Pareto front
     cand_idx2 <- which(df$Type == "Pareto Front")
     if (length(cand_idx2) >= 1) {
-      # order by Time (asc), then Coef_Accuracy (asc) as a tie-breaker
-      ord <- order(df$Time[cand_idx2], df$Coef_Accuracy[cand_idx2])
+      # order by Time (asc), then SPE (asc) as a tie-breaker
+      ord <- order(df$Time[cand_idx2], df$SPE[cand_idx2])
       best_i <- cand_idx2[ ord[1] ]
       df$Type[best_i] <- "Best Hyperparameters"
     } else {
@@ -55,7 +57,7 @@ cp_pareto_front <- function(data,T_hope=20,line=TRUE) {
 
   df_front <- df %>%
     dplyr::filter(Type %in% c("Pareto Front", "Best Hyperparameters")) %>%
-    dplyr::arrange(Coef_Accuracy)
+    dplyr::arrange(SPE)
 
 
   # Plot Pareto front
@@ -63,14 +65,14 @@ cp_pareto_front <- function(data,T_hope=20,line=TRUE) {
     geom_hline(yintercept = T_hope, linetype = "dashed", color = "black", linewidth = 1) +
     geom_point(
       data = df %>% filter(Type != "Best Hyperparameters"),
-      aes(x = Coef_Accuracy, y = Time, fill = Type, shape = Type, alpha = Type, size = Type),
+      aes(x = SPE, y = Time, fill = Type, shape = Type, alpha = Type, size = Type),
       color  = "black",
       stroke = 1
     ) +
     # Line of Pareto front
     {if (line) geom_path(
       data = df_front,
-      aes(x = Coef_Accuracy, y = Time),
+      aes(x = SPE, y = Time),
       linewidth = 1,
       color = "#2171B5",
       alpha = 0.9
@@ -78,7 +80,7 @@ cp_pareto_front <- function(data,T_hope=20,line=TRUE) {
     # Best Hyperparameters
     geom_point(
       data = df %>% filter(Type == "Best Hyperparameters"),
-      aes(x = Coef_Accuracy, y = Time, fill = Type, shape = Type, size = Type),
+      aes(x = SPE, y = Time, fill = Type, shape = Type, size = Type),
       color  = "black",
       stroke = 1,
       show.legend = TRUE
@@ -93,7 +95,7 @@ cp_pareto_front <- function(data,T_hope=20,line=TRUE) {
       )
     ) +
     scale_shape_manual(
-      name = "Point Category",
+      name ="Point Category",
       values = c(
         "Not Pareto Front"     = 21,
         "Pareto Front"         = 21,
@@ -121,7 +123,7 @@ cp_pareto_front <- function(data,T_hope=20,line=TRUE) {
       shape = guide_legend(override.aes = list(size = 6))
     ) +
     # Labels of axis
-    labs(x = "Coefficient Accuracy", y = "Time", title = "") +
+    labs(x = "SPE", y = "Time", title = "") +
     theme(
       axis.title = element_text(size = 24),
       axis.text  = element_text(size = 20),
@@ -138,7 +140,7 @@ cp_pareto_front <- function(data,T_hope=20,line=TRUE) {
     ) +
     annotate(
       "text",
-      x = max(df$Coef_Accuracy, na.rm = TRUE),
+      x = max(df$SPE, na.rm = TRUE),
       y = T_hope,
       label = paste("T_hope =", T_hope),
       hjust = 1.1,

@@ -6,14 +6,15 @@
 #' @param size Integer, number of samples to generate pareto front for optimization.
 #' @param T_hope A numeric value representing the desired computation time threshold. Default is 20.
 #' @param message A logical value. If `TRUE`, messages will be displayed. Default is `TRUE`.
-#'
+#' @param seed An integer specifying the random seed for reproducibility. Default is 1.
+#' @param line logical(1). If TRUE, the Pareto-front points in the plot are　connected with a polyline (frontier line). If FALSE, only the points are shown. Default is TRUE.
 #' @return A list containing optimal `nlambda`, `thresh`, pareto front, and pareto data.
 #'
 #' @import Rcpp
 #' @importFrom Rcpp sourceCpp
 #' @importFrom readr read_csv
 #' @export
-auto_settingvalue <- function(X, size = 1000, T_hope = 20, seed=1,message = TRUE,line=TRUE) {
+tune_hyperparameters<- function(X, size = 1000, T_hope = 20, seed=1,message = TRUE,line=TRUE) {
   x_input <- make_input(X)
   x_input <- as.numeric(x_input)
   x_input_matrix <- matrix(rep(x_input, size), ncol = length(x_input), byrow = TRUE)
