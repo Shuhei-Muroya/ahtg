@@ -1,7 +1,7 @@
 Package: ahtg
 Type: Package
 Title: automatic hyperparemeter tuning for glmnet function
-Version: 0.1.0
+Version: 0.2.0
 Author: Shuhei Muroya
 Maintainer: Shuhei Muroya <muroya.shuhei.697@s.kyushu-u.ac.jp>
 Description: More about what it does (maybe more than one line)
