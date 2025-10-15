@@ -30,7 +30,7 @@ x_data <- get("x", envir = .myPackageEnv)
 y_data <- get("y", envir = .myPackageEnv)
 
 ## Automatically select the hyperparameters for glmnet
-auto_settingvalue(x_data,T_hope=20,size = 1000)
+tune_hyperparameters(x_data,T_hope=20,size = 1000)
 
 ## Automatically select the hyperparameters and compute the lasso
 auto_lasso(x_data,y_data)
