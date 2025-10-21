@@ -51,7 +51,9 @@
   # x.csv と y.csv をロード
   data_files <- list(
     list(file = "x.csv", varname = "x"),
-    list(file = "y.csv", varname = "y")
+    list(file = "y.csv", varname = "y"),
+    list(file = "x_test.csv", varname = "x_test"),
+    list(file = "y_test.csv", varname = "y_test")
   )
 
   for (spec in data_files) {
