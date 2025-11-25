@@ -17,6 +17,10 @@ You can install the development version of ahtg from [GitHub](https://github.com
 library(devtools)
 devtools::install_github("Shuhei-Muroya/ahtg")
 ```
+or
+``` r
+remotes::install_github("Shuhei-Muroya/ahtg")
+```
 
 ## Example
 
