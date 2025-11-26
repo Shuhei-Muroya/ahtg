@@ -79,7 +79,7 @@ cp_pareto_front <- function(data,T_hope=20,line=TRUE) {
     )} +
     # Best Hyperparameters
     geom_point(
-      data = df %>% filter(Type == "Best Hyperparameters"),
+      data = df %>% filter(Type == "Best Configuration"),
       aes(x = SPE, y = Time, fill = Type, shape = Type, size = Type),
       color  = "black",
       stroke = 1,
