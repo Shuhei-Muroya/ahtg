@@ -14,7 +14,7 @@
 #' @importFrom Rcpp sourceCpp
 #' @importFrom readr read_csv
 #' @export
-tune_hyperparameters<- function(X, size = 1000, T_hope = 20, seed=1,message = TRUE,line=TRUE) {
+tune_hyperparameters<- function(X, size = 1000, T_hope = 20, seed=1,message = TRUE,line=FALSE) {
   x_input <- make_input(X)
   x_input <- as.numeric(x_input)
   x_input_matrix <- matrix(rep(x_input, size), ncol = length(x_input), byrow = TRUE)

@@ -13,7 +13,7 @@
 #' @export
 #'
 #'
-cp_pareto_front <- function(data,T_hope=20,line=TRUE) {
+cp_pareto_front <- function(data,T_hope=20,line=FALSE) {
   data <- as.data.frame(data)
   colnames(data) <- c("Time", "SPE", "params_nlambda", "params_thresh")
 
