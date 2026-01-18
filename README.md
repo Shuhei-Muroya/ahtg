@@ -37,6 +37,6 @@ y_data <- get("y", envir = .myPackageEnv)
 tune_hyperparameters(x_data,T_hope=20,size = 1000)
 
 ## Automatically select the hyperparameters and compute the lasso
-auto_lasso(x_data,y_data)
+auto_lasso(x_data,y_data,T_hope=20)
 ```
 
