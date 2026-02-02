@@ -50,8 +50,8 @@ auto_lasso<- function(X,y, new_x=NULL,size = 1000, T_hope = 20, seed=1,message =
     model         = NULL,
     selection     = list(best_step = NA_integer_, best_lambda = NA_real_),
     coefficients  = NULL,
-    result$Pareto_front =NULL,
-    result$Pareto_front_data  =NULL,
+    Pareto_front =NULL,
+    Pareto_front_data  =NULL,
     prediction    = NULL
   )
 
