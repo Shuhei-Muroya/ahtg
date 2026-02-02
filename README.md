@@ -29,14 +29,24 @@ This is a basic example :
 ``` r
 library(ahtg)
 
-## Import example data
-x_data <- get("x", envir = .myPackageEnv)
-y_data <- get("y", envir = .myPackageEnv)
-
-## Automatically select the hyperparameters for glmnet
-tune_hyperparameters(x_data,T_hope=20,size = 1000)
+# Prepare data (Generate dummy data)
+set.seed(1)
+N <- 1500
+p <- 800
+X <- matrix(rnorm(N * p), N, p)
+# True coefficients (Only first 10 variables are active)
+beta_true <- c(rep(2, 10), rep(0, p - 10))
+# Response (Signal + Noise)
+y <- X %*% beta_true + rnorm(N)
 
 ## Automatically select the hyperparameters and compute the lasso
-auto_lasso(x_data,y_data)
+result<-auto_lasso(X, y, T_hope=20)
+
+## Check the estimated coefficients
+print(result$coefficients)
+
+## Check the Pareto front and the tuned configuration (if glmnet was used)
+print(result$Pareto_front)
+print(result$hyperparameters)
 ```
 

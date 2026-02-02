@@ -106,8 +106,9 @@ auto_lasso<- function(X,y, new_x=NULL,size = 1000, T_hope = 20, seed=1,message =
     result$model             <- glmnet_model
     result$selection$best_lambda    <- cv_set$lambda.min
     result$coefficients             <- coef_glmnet
-    result$hyperparameters          <- data.frame( nlambda = n_lambda, thresh = thresh)
-    result$pareto                   <- tuning_result
+    result$hyperparameters          <- list( thresh = thresh, seq_lamabda= lam,nlambda = n_lambda)
+    result$Pareto_front                   <- tuning_result$Pareto_front
+    result$Pareto_front_data                   <- tuning_result$Pareto_front_data
 
     #predictionまで
     if(!is.null(new_x)){
