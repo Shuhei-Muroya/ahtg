@@ -45,13 +45,14 @@ auto_lasso<- function(X,y, new_x=NULL,size = 1000, T_hope = 20, seed=1,message =
   result <- list(
     method        = NA_character_,
     timing        = list(predicted_lars_time = lars_time, T_hope = T_hope),
-    hyperparameters = list(source = "not_applicable", nlambda = NA_integer_, thresh = NA_real_),
+    hyperparameters = NULL,
     cv            = NULL,
     model         = NULL,
     selection     = list(best_step = NA_integer_, best_lambda = NA_real_),
     coefficients  = NULL,
-    prediction    = NULL,
-    pareto        = NULL
+    result$Pareto_front =NULL,
+    result$Pareto_front_data  =NULL,
+    prediction    = NULL
   )
 
   if(T_hope>lars_time){#lasso by lars
