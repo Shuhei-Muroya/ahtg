@@ -79,7 +79,7 @@ auto_lasso<- function(X,y, new_x=NULL,size = 1000, T_hope = 20, seed=1,message =
       new_x<-as.matrix(new_x)
       result$prediction <- predict(lars_model, newx = new_x, mode = "step", s = best_step)$fit
     }
-  }else{#lasso by glmnet
+  }else{   #lasso by glmnet
     method<-"glmnet"
     set.seed(seed)
 
