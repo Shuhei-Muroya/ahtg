@@ -28,15 +28,18 @@ This is a basic example :
 
 ``` r
 library(ahtg)
-
+library(MASS)
 # Prepare data (Generate dummy data)
 set.seed(1)
 N <- 1500
 p <- 800
-X <- matrix(rnorm(N * p), N, p)
-# True coefficients (Only first 10 variables are active)
-beta_true <- c(rep(2, 10), rep(0, p - 10))
-# Response (Signal + Noise)
+rho <- 0.5
+Sigma <- matrix(rho, nrow = p, ncol = p)
+diag(Sigma) <- 1
+Sigma <- outer(1:p, 1:p, function(i, j) ifelse(i == j, 1, rho))
+
+X <- mvrnorm(n = N, mu = rep(0, p), Sigma = Sigma)
+beta_true <- c(rep(1, p/2), rep(0, p/2))
 y <- X %*% beta_true + rnorm(N)
 
 ## Automatically select the hyperparameters and compute the lasso
