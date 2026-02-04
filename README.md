@@ -29,28 +29,55 @@ This is a basic example :
 ``` r
 library(ahtg)
 library(MASS)
+library(glmnet)
+
 # Prepare data (Generate dummy data)
 set.seed(1)
-N <- 1500
+N_train <- 1500
+N_test  <- 100
+N_total <- N_train + N_test
 p <- 800
 rho <- 0.5
+
+# Prepare Covariance Matrix
 Sigma <- matrix(rho, nrow = p, ncol = p)
 diag(Sigma) <- 1
-Sigma <- outer(1:p, 1:p, function(i, j) ifelse(i == j, 1, rho))
 
-X <- mvrnorm(n = N, mu = rep(0, p), Sigma = Sigma)
+# Generate full dataset
+X <- mvrnorm(n = N_total, mu = rep(0, p), Sigma = Sigma)
 beta_true <- c(rep(1, p/2), rep(0, p/2))
-y <- X %*% beta_true + rnorm(N)
+y <- X %*% beta_true + rnorm(N_total)
 
-## Automatically select the hyperparameters and compute the lasso
-result<-auto_lasso(X, y, T_hope=20)
+# Split into Training and Testing sets
+train_ind <- 1:N_train
+X_train <- X[train_ind, ]
+y_train <- y[train_ind]
+X_test  <- X[-train_ind, ]
+y_test  <- y[-train_ind]
 
-## Check the estimated coefficients
+
+# Automatically select the hyperparameters and compute the lasso, predict for the test data.
+result<-auto_lasso(X_train, y_train, new_x=X_test,T_hope=20)
+
+# Check the estimated coefficients
 print(result$coefficients)
 
-## Check the Pareto front and the tuned configuration (if glmnet was used)
+# Check the Pareto front and the tuned configuration (if glmnet was used)
 print(result$Pareto_front)
 print(result$hyperparameters)
+
+# Test error
+mse_ahtg <-mean((y_test - result$prediction)^2)
+
+
+# Compare the glmnet (default)
+cv_glmnet <- cv.glmnet(X_train, y_train, alpha = 1)
+pred_glmnet <- predict(cv_glmnet, newx = X_test, s = "lambda.min")
+mse_default  <- mean((y_test - pred_glmnet)^2)
+
+
+cat("Test MSE (ahtg):  ", mse_ahtg, "\n")
+cat("Test MSE (glmnet default):", mse_default, "\n")
 
 ```
 
